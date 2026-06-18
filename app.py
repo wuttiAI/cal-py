@@ -34,4 +34,114 @@ def press(number):
     global expression
     global lable_show_cal
     expression = expression + number
-    lable_show
+    lable_show_cal.set(expression)
+
+def equal():
+    try:
+        global expression
+        global lable_show_cal
+        result = str(eval(expression))
+        lable_show_cal.set(result)
+    except:
+        result = "error"
+        expression = ""
+    lable_show_cal.set(result)
+
+m = Tk()
+m.title('Calculator from python')
+m.option_add("font", "consolas 30")
+lable_show_cal = StringVar()
+lable_show_cal.set(0)
+expression = ""
+
+Label(m, textvariable=lable_show_cal).grid(row=0, column=0, columnspan=4)
+Button(m, text="clear", command=clear).grid(row=1, column=0, columnspan=4, sticky="news")
+
+# ---- ให้นักเรียนเขียนโค้ดสร้างปุ่มตัวเลข 0-9 และเครื่องหมายต่างๆ ต่อจากตรงนี้ ----
+
+
+
+m.mainloop()
+"""
+    
+    # ช่องพิมพ์โค้ad
+    user_code = st.text_area("✍️ พิมพ์โค้ด Python ของคุณที่นี่:", value=default_code, height=500)
+    check_button = st.button("🚀 ส่งคำตอบ / ตรวจสอบโค้ด")
+
+with col2:
+    st.subheader("🎯 ผลการตรวจคำตอบ (Grader Output)")
+    
+    if check_button:
+        score = 0
+        total_checks = 6
+        feedback = []
+        
+        # ลบช่องว่างออกเพื่อให้ง่ายต่อการตรวจด้วย Regex
+        clean_code = user_code.replace(" ", "").replace("'", '"')
+        
+        # 1. ตรวจสอบฟังก์ชัน clear, press, equal
+        if "defclear()" in clean_code and "defpress(number):" in clean_code and "defequal():" in clean_code:
+            feedback.append("✅ โครงสร้างฟังก์ชันลอจิก `clear`, `press`, และ `equal` ครบถ้วน")
+            score += 1
+        else:
+            feedback.append("❌ ฟังก์ชันลอจิกไม่ครบถ้วน (ต้องมี clear(), press(number) และ equal())")
+            
+        # 2. ตรวจสอบการใช้ eval() ดักจับข้อผิดพลาด
+        if "eval(expression)" in clean_code and "except:" in clean_code:
+            feedback.append("✅ มีการใช้ `eval()` และระบบ `try-except` ดักจับ Error ได้ถูกต้อง")
+            score += 1
+        else:
+            feedback.append("❌ ฟังก์ชัน equal() ควรมีระบบ `try-except` และใช้ `eval(expression)`")
+            
+        # 3. ตรวจสอบการตั้งค่าหน้าต่างหลัก
+        if "m=Tk()" in clean_code and 'm.title("Calculatorfrompython")' in clean_code:
+            feedback.append("✅ สร้างหน้าต่าง `m` และตั้งชื่อ Title ถูกต้อง")
+            score += 1
+        else:
+            feedback.append("❌ หน้าต่างหลัก `Tk()` หรือชื่อ Title ไม่ถูกต้อง")
+            
+        # 4. ตรวจสอบการสร้างหน้าจอผลลัพธ์ (Label)
+        if "Label(m,textvariable=lable_show_cal).grid" in clean_code:
+            feedback.append("✅ สร้างหน้าจอแสดงผล `Label` และผูกกับ `lable_show_cal` ถูกต้อง")
+            score += 1
+        else:
+            feedback.append("❌ ไม่พบการสร้าง `Label` ที่ผูกกับ `textvariable=lable_show_cal`")
+
+        # 5. ตรวจสอบปุ่มตัวเลขและเครื่องหมาย (สุ่มตรวจปุ่มสำคัญ เช่น ปุ่ม 7, ปุ่ม +, ปุ่ม Clear)
+        has_buttons = True
+        if 'text="clear",command=clear' not in clean_code:
+            has_buttons = False
+        if 'text="7",command=lambda:press("7")' not in clean_code:
+            has_buttons = False
+        if 'text="+",command=lambda:press("+")' not in clean_code:
+            has_buttons = False
+        if 'text="=",command=equal' not in clean_code:
+            has_buttons = False
+            
+        if has_buttons:
+            feedback.append("✅ ปุ่มตัวเลข ปุ่มเครื่องหมายสำคัญ และการใช้ Lambda ถูกต้องครบบริบูรณ์")
+            score += 1
+        else:
+            feedback.append("❌ ปุ่มกดบางปุ่มหรือการตั้งค่า `command=lambda: press(...)` ยังไม่ถูกต้องตามรูปแบบ")
+
+        # 6. ตรวจสอบคำสั่งรันระบบในบรรทัดสุดท้าย
+        if "m.mainloop()" in clean_code:
+            feedback.append("✅ มีการสั่งรันโปรแกรมปิดท้ายด้วย `m.mainloop()`")
+            score += 1
+        else:
+            feedback.append("❌ อย่าลืมใส่ `m.mainloop()` ที่บรรทัดสุดท้ายเพื่อสั่งให้ GUI ทำงาน")
+            
+        # แสดงผลคะแนนรวม
+        st.write("---")
+        if score == total_checks:
+            st.success(f"🎉 ยอดเยี่ยมมาก! โค้ดเครื่องคิดเลขของคุณถูกต้องสมบูรณ์ ได้ {score}/{total_checks} คะแนน")
+            st.balloons()
+        else:
+            st.warning(f"💡 พยายามอีกนิด! คะแนนของคุณคือ: {score}/{total_checks}")
+            
+        # แสดงรายละเอียดผลการตรวจทีละข้อ
+        for item in feedback:
+            st.write(item)
+            
+    else:
+        st.info("ℹ️ พิมพ์ซี้อหรือแก้ไขโค้ดเสร็จแล้ว ให้กดปุ่ม 'ส่งคำตอบ' ด้านล่างซ้ายเพื่อรับคะแนน")
